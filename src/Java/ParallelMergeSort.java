@@ -2,6 +2,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ParallelMergeSort {
+
+    private static final int LIMITE_PARALELO = 4; // Evita explodir threads
+
     static void paralleMergeSort(List<Integer> array, int indxEsq, int indxDir){
         if(indxEsq < indxDir){
             int meio = (indxEsq + indxDir) / 2;
