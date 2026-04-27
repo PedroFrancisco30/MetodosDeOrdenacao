@@ -8,7 +8,7 @@ import java.util.List;
 public class main {
     public static void main(String[] args) {
 
-        List<Integer> listaNumerosAux;
+        List<Integer> listaNumerosAux, listaTeste;
         List<List<Integer>> listaNumeros = new ArrayList<>();
 
         try(BufferedReader br = new BufferedReader(new FileReader("config/input/input.dat"));){
@@ -33,6 +33,8 @@ public class main {
         for (int i = 0; i < listaNumeros.size(); i++) {
             System.out.println(listaNumeros.get(i).size());
         }
+
+        listaNumerosAux = listaNumeros.get(0);
 
         MergeSort.mergeSort(listaNumeros.get(0), 0, listaNumeros.get(0).size()-1);
 
