@@ -3,25 +3,30 @@ import java.util.List;
 
 public class ParallelMergeSort {
 
-    private static final int LIMITE_PARALELO = 4; // Evita explodir threads
+    static final int LIMITE_PARALELO = 2; // Evita explodir threads
 
-    static void paralleMergeSort(List<Integer> array, int indxEsq, int indxDir){
+    static void paralleMergeSort(List<Integer> array, int indxEsq, int indxDir, int profundidade){
         if(indxEsq < indxDir){
             int meio = (indxEsq + indxDir) / 2;
 
-            Thread thread1 = new Thread(() -> paralleMergeSort(array, indxEsq, meio)); // Ordena o lado esquerda da metade
-            Thread thread2 = new Thread(() -> paralleMergeSort(array, meio+1, indxDir)); // Ordena o lado direita a partir da metade
+            if(profundidade > 0) {
+                Thread thread1 = new Thread(() -> paralleMergeSort(array, indxEsq, meio, profundidade - 1)); // Ordena o lado esquerda da metade
+                Thread thread2 = new Thread(() -> paralleMergeSort(array, meio + 1, indxDir, profundidade - 1)); // Ordena o lado direita a partir da metade
 
-            // Essas lambdas estao abreviando a criacao de um Runnable e metodo run
+                // Essas lambdas estao abreviando a criacao de um Runnable e metodo run
 
-            thread1.start(); // Iniciou em paralelo
-            thread2.start();
+                thread1.start(); // Iniciou em paralelo
+                thread2.start();
 
-            try {
-                thread1.join();
-                thread2.join();
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
+                try {
+                    thread1.join();
+                    thread2.join();
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+            }else{ // Para de criar Threads infinitas
+                paralleMergeSort(array, indxEsq, meio, 0);
+                paralleMergeSort(array, meio+1, indxDir, 0);
             }
 
 

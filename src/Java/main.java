@@ -42,7 +42,7 @@ public class main {
             long fim1 = System.currentTimeMillis();
 
             long inicio2 = System.currentTimeMillis();
-            ParallelMergeSort.paralleMergeSort(listaTeste.get(1), 0, listaTeste.get(1).size() - 1);
+            ParallelMergeSort.paralleMergeSort(listaTeste.get(1), 0, listaTeste.get(1).size() - 1, ParallelMergeSort.LIMITE_PARALELO);
             long fim2 = System.currentTimeMillis();
 
             System.out.println("MergeSort: " + (fim1 - inicio1) + "ms.\n" +
