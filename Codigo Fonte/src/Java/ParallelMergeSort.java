@@ -3,7 +3,7 @@ import java.util.List;
 
 public class ParallelMergeSort {
 
-    static final int LIMITE_PARALELO = 2; // Evita explodir threads
+    static final int LIMITE_PARALELO = 3; // Evita explodir threads
 
     static void paralleMergeSort(List<Integer> array, int indxEsq, int indxDir, int profundidade){
         if(indxEsq < indxDir){

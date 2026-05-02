@@ -57,7 +57,7 @@ public class main {
             temposMediosParallel.add((double)tempoMergeParallelAux / 15);
         }
 
-        System.out.println("Tempos medios: " + listaNumeros.size());
+        System.out.println("Tempos medios apos 15 testes: ");
         System.out.println("Metodo - 10a2  /  10a3  /  10a4  /  10a5  /  10a6");
         System.out.println("Merge  "+temposMediosMerge.get(0)+" / "+temposMediosMerge.get(1)+" / "+temposMediosMerge.get(2)+" / "+temposMediosMerge.get(3)+" / "+temposMediosMerge.get(4));
         System.out.println("Parall "+temposMediosParallel.get(0)+" / "+temposMediosParallel.get(1)+" / "+temposMediosParallel.get(2)+" / "+temposMediosParallel.get(3)+" / "+temposMediosParallel.get(4));
