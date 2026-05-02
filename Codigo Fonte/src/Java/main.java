@@ -9,8 +9,11 @@ public class main {
     public static void main(String[] args) {
 
         List<Integer> listaNumerosAux;
+        List<Double> temposMediosMerge = new ArrayList<>(), temposMediosParallel = new ArrayList<>();
         List<List<Integer>> listaNumeros = new ArrayList<>(), listaTeste = new ArrayList<>();
+        long tempoMergeAux, tempoMergeParallelAux;
 
+        // Lendo input
         try (BufferedReader br = new BufferedReader(new FileReader("Codigo Fonte/config/input/input.dat"));) {
             String linha;
             while ((linha = br.readLine()) != null) {
@@ -31,23 +34,32 @@ public class main {
         listaTeste.add(new ArrayList<>());
         listaTeste.add(new ArrayList<>());
 
-        for (int j = 0; j < listaNumeros.size(); j++) {
-            System.out.println("Tempo gasto para " + listaNumeros.get(j).size() + " elementos.");
+        for (List<Integer> listaNumero : listaNumeros) {
+            tempoMergeAux = 0;
+            tempoMergeParallelAux = 0;
+            for (int i = 0; i < 15; i++) {
+                listaTeste.set(0, new ArrayList<>(listaNumero));
+                listaTeste.set(1, new ArrayList<>(listaNumero));
 
-            listaTeste.set(0, new ArrayList<>(listaNumeros.get(j)));
-            listaTeste.set(1, new ArrayList<>(listaNumeros.get(j)));
+                long inicio1 = System.currentTimeMillis();
+                MergeSort.mergeSort(listaTeste.getFirst(), 0, listaTeste.getFirst().size() - 1);
+                long fim1 = System.currentTimeMillis();
 
-            long inicio1 = System.currentTimeMillis();
-            MergeSort.mergeSort(listaTeste.get(0), 0, listaTeste.get(0).size() - 1);
-            long fim1 = System.currentTimeMillis();
+                long inicio2 = System.currentTimeMillis();
+                ParallelMergeSort.paralleMergeSort(listaTeste.get(1), 0, listaTeste.get(1).size() - 1, ParallelMergeSort.LIMITE_PARALELO);
+                long fim2 = System.currentTimeMillis();
 
-            long inicio2 = System.currentTimeMillis();
-            ParallelMergeSort.paralleMergeSort(listaTeste.get(1), 0, listaTeste.get(1).size() - 1, ParallelMergeSort.LIMITE_PARALELO);
-            long fim2 = System.currentTimeMillis();
+                tempoMergeAux += (fim1 - inicio1);
+                tempoMergeParallelAux += (fim2 - inicio2);
+            }
 
-            System.out.println("MergeSort: " + (fim1 - inicio1) + "ms.\n" +
-                    "Parallel MergeSort: " + (fim2 - inicio2) + "ms.");
-            System.out.println("======================");
+            temposMediosMerge.add((double)tempoMergeAux / 15);
+            temposMediosParallel.add((double)tempoMergeParallelAux / 15);
         }
+
+        System.out.println("Tempos medios: " + listaNumeros.size());
+        System.out.println("Metodo - 10a2  /  10a3  /  10a4  /  10a5  /  10a6");
+        System.out.println("Merge  "+temposMediosMerge.get(0)+" / "+temposMediosMerge.get(1)+" / "+temposMediosMerge.get(2)+" / "+temposMediosMerge.get(3)+" / "+temposMediosMerge.get(4));
+        System.out.println("Parall "+temposMediosParallel.get(0)+" / "+temposMediosParallel.get(1)+" / "+temposMediosParallel.get(2)+" / "+temposMediosParallel.get(3)+" / "+temposMediosParallel.get(4));
     }
 }
