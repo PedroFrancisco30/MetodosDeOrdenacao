@@ -11,7 +11,7 @@ public class main {
         List<Integer> listaNumerosAux;
         List<List<Integer>> listaNumeros = new ArrayList<>(), listaTeste = new ArrayList<>();
 
-        try (BufferedReader br = new BufferedReader(new FileReader("config/input/input.dat"));) {
+        try (BufferedReader br = new BufferedReader(new FileReader("Codigo Fonte/config/input/input.dat"));) {
             String linha;
             while ((linha = br.readLine()) != null) {
                 listaNumerosAux = new ArrayList<>(); // Nova lista para cada linha
