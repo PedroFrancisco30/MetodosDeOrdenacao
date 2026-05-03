@@ -64,7 +64,7 @@ int main() {
 
         cout << (int)pow(10, linha_atual + 2) << " entradas:" << endl;
         cout << fixed << setprecision(6);
-        cout << "Média mergesort: " << media1 << "s" << endl;
+        cout << "Média mergesort:          " << media1 << "s" << endl;
         cout << "Média parallel mergesort: " << media2 << "s" << endl;
         cout << "--------------------------------------" << endl;
 
