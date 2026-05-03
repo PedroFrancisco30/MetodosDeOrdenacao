@@ -12,7 +12,7 @@ using namespace std;
 
 int main() {
 
-    const int execucoes = 100;
+    const int execucoes = 15;
 
     int linha_atual = 0;
 
