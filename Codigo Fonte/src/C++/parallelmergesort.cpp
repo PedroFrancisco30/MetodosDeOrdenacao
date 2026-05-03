@@ -1,13 +1,9 @@
-#include <iostream>
-#include <fstream>
-#include <sstream>
 #include <vector>
-#include <chrono>
 #include <thread>
 
 using namespace std;
 
-void mesclar(vector<int> &vetor, int inicio, int meio, int fim) {
+void unir(vector<int> &vetor, int inicio, int meio, int fim) {
     vector<int> temp;
     int i = inicio;
     int j = meio + 1;
@@ -27,69 +23,21 @@ void mesclar(vector<int> &vetor, int inicio, int meio, int fim) {
         vetor[inicio + k] = temp[k];
 }
 
-void mergesort(vector<int> &vetor, int inicio, int fim, int profundidade = 0) {
+void parallelmergesort(vector<int> &vetor, int inicio, int fim, int profundidade) {
     if (inicio >= fim) return;
 
     int meio = inicio + (fim - inicio) / 2;
 
     if (profundidade < 3) {
-        thread t1(mergesort, std::ref(vetor), inicio, meio, profundidade + 1);
-        thread t2(mergesort, std::ref(vetor), meio + 1, fim, profundidade + 1);
+        thread t1(parallelmergesort, std::ref(vetor), inicio, meio, profundidade + 1);
+        thread t2(parallelmergesort, std::ref(vetor), meio + 1, fim, profundidade + 1);
 
         t1.join();
         t2.join();
     } else {
-        mergesort(vetor, inicio, meio, profundidade + 1);
-        mergesort(vetor, meio+1, fim, profundidade + 1);
+        parallelmergesort(vetor, inicio, meio, profundidade + 1);
+        parallelmergesort(vetor, meio+1, fim, profundidade + 1);
     }
 
-    mesclar(vetor, inicio, meio, fim);
-}
-
-int main() {
-
-    int linha_teste = 0;
-    int linha_atual = 0;
-
-    string linha;
-
-    ifstream arquivo;
-
-    arquivo.open("../../../config/input/input2.dat");
-
-    if (arquivo.is_open()) {
-        while (getline(arquivo, linha)) {
-
-            if (linha_atual == linha_teste) {
-                vector<int> lista_numeros;
-                stringstream ss(linha);
-                int numero;
-
-                while (ss >> numero) {
-                    lista_numeros.push_back(numero);
-                }
-
-                //Contagem do tempo
-                auto inicio = chrono::high_resolution_clock::now();
-                mergesort(lista_numeros, 0, lista_numeros.size() - 1);
-                auto fim = chrono::high_resolution_clock::now();
-
-                for(size_t i = 0; i <= lista_numeros.size()-1; i++) {
-                    cout << lista_numeros[i] << ", ";
-                }
-
-                chrono::duration<double> tempo = fim - inicio;
-                cout << "Tempo: " << tempo.count() << "s" << endl;
-
-                break;
-            }
-
-            linha_atual++;
-        }
-
-        arquivo.close();
-    }else{
-        cout << "Erro ao ler o arquivo";
-    }
-    return 0;
+    unir(vetor, inicio, meio, fim);
 }
