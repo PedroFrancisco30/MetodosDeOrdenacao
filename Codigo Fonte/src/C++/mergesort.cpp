@@ -1,8 +1,7 @@
-#include <vector>
-
+#include "mergesort.h"
 using namespace std;
 
-void mesclar(vector<int> &vetor, int inicio, int meio, int fim) {
+void MergeSort::mesclar(vector<int> &vetor, int inicio, int meio, int fim) {
     vector<int> temp;
     int i = inicio;
     int j = meio + 1;
@@ -22,12 +21,12 @@ void mesclar(vector<int> &vetor, int inicio, int meio, int fim) {
         vetor[inicio + k] = temp[k];
 }
 
-void mergesort(vector<int> &vetor, int inicio, int fim) {
+void MergeSort::ordenar(vector<int> &vetor, int inicio, int fim) {
     if (inicio >= fim) return;
 
     int meio = inicio + (fim - inicio) / 2;
 
-    mergesort(vetor, inicio, meio);
-    mergesort(vetor, meio+1, fim);
+    ordenar(vetor, inicio, meio);
+    ordenar(vetor, meio+1, fim);
     mesclar(vetor, inicio, meio, fim);
 }

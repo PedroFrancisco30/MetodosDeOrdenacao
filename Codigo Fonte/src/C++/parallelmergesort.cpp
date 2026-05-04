@@ -1,9 +1,12 @@
-#include <vector>
+#include "parallelmergesort.h"
 #include <thread>
 
 using namespace std;
 
-void unir(vector<int> &vetor, int inicio, int meio, int fim) {
+ParallelMergeSort::ParallelMergeSort(int profundidade_max)
+    : profundidade_max_(profundidade_max) {}
+
+void ParallelMergeSort::unir(vector<int> &vetor, int inicio, int meio, int fim){
     vector<int> temp;
     int i = inicio;
     int j = meio + 1;
@@ -23,21 +26,25 @@ void unir(vector<int> &vetor, int inicio, int meio, int fim) {
         vetor[inicio + k] = temp[k];
 }
 
-void parallelmergesort(vector<int> &vetor, int inicio, int fim, int profundidade) {
+void ParallelMergeSort::executar(vector<int> &vetor, int inicio, int fim, int profundidade) {
     if (inicio >= fim) return;
 
     int meio = inicio + (fim - inicio) / 2;
 
-    if (profundidade < 3) {
-        thread t1(parallelmergesort, std::ref(vetor), inicio, meio, profundidade + 1);
-        thread t2(parallelmergesort, std::ref(vetor), meio + 1, fim, profundidade + 1);
+    if (profundidade < profundidade_max_) {
+        thread t1(&ParallelMergeSort::executar, this, ref(vetor), inicio, meio, profundidade + 1);
+        thread t2(&ParallelMergeSort::executar, this, ref(vetor), meio + 1, fim, profundidade + 1);
 
         t1.join();
         t2.join();
     } else {
-        parallelmergesort(vetor, inicio, meio, profundidade + 1);
-        parallelmergesort(vetor, meio+1, fim, profundidade + 1);
+        executar(vetor, inicio, meio, profundidade + 1);
+        executar(vetor, meio+1, fim, profundidade + 1);
     }
 
     unir(vetor, inicio, meio, fim);
+}
+
+void ParallelMergeSort::ordenar(vector<int>& vetor, int inicio, int fim) {
+    executar(vetor, inicio, fim, 0);
 }
