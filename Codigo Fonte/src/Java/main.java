@@ -43,6 +43,8 @@ public class main {
                 inicio1 = System.nanoTime();
                 MergeSort.mergeSort(listaTeste.getFirst(), 0, listaTeste.getFirst().size() - 1);
                 fim1 = System.nanoTime();
+
+                tempoMergeAux += (fim1 - inicio1);
             }
 
             for(int i = 0; i < 15; i++){
@@ -51,10 +53,9 @@ public class main {
                 inicio2 = System.nanoTime();
                 ParallelMergeSort.paralleMergeSort(listaTeste.get(1), 0, listaTeste.get(1).size() - 1, ParallelMergeSort.LIMITE_PARALELO);
                 fim2 = System.nanoTime();
-            }
 
-            tempoMergeAux += (fim1 - inicio1);
-            tempoMergeParallelAux += (fim2 - inicio2);
+                tempoMergeParallelAux += (fim2 - inicio2);
+            }
 
             temposMediosMerge.add((double)tempoMergeAux / 15 / 1_000_000_000);
             temposMediosParallel.add((double)tempoMergeParallelAux / 15 / 1_000_000_000);
