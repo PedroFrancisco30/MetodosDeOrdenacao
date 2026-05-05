@@ -3,7 +3,7 @@
 
 class ParallelMergeSort : public Sorter {
 public:
-    explicit ParallelMergeSort(int profundidade_max = 3);
+    explicit ParallelMergeSort(int profundidade_max = 1);
     void ordenar(std::vector<int>& vetor, int inicio, int fim) override;
 
 private:
