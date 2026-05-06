@@ -6,7 +6,6 @@
 void paralleMergeSort(int *array, int indxEsq, int indxDir, int profundidade);
 void merge(int *array, int indxEsq, int meio, int indxDir);
 
-// Estrutura auxiliar para passar argumentos para a Thread em C
 typedef struct {
     int *array;
     int indxEsq;
@@ -14,11 +13,10 @@ typedef struct {
     int profundidade;
 } ThreadArgs;
 
-// Função wrapper exigida pela pthread_create
 void* threadFunc(void* arg) {
     ThreadArgs* args = (ThreadArgs*)arg;
     paralleMergeSort(args->array, args->indxEsq, args->indxDir, args->profundidade);
-    free(args); // Libera o struct de argumentos
+    free(args); 
     return NULL;
 }
 
