@@ -3,7 +3,6 @@
 #include <string.h>
 #include <sys/time.h>
 
-// Declarações das funções externas
 void mergeSort(int *array, int indxEsq, int indxDir);
 void paralleMergeSort(int *array, int indxEsq, int indxDir, int profundidade);
 
@@ -16,7 +15,7 @@ long long currentTimeMillis() {
     return (tempo.tv_sec * 1000) + (tempo.tv_usec / 1000);
 }
 
-// Estrutura dinâmica para guardar os arrays (como o List<List<Integer>>)
+// Estrutura dinâmica para guardar os arrays 
 typedef struct {
     int *dados;
     size_t tamanho;
@@ -37,7 +36,6 @@ int main() {
         return 1;
     }
 
-    // Leitura do arquivo (equivalente ao BufferedReader / split("\\s+"))
     char *linha = NULL;
     size_t tamanhoBuffer = 0;
     ssize_t lido;
@@ -53,7 +51,7 @@ int main() {
         while (*ptr != '\0') {
             long num = strtol(ptr, &fimPtr, 10);
             if (ptr == fimPtr) {
-                ptr++; // Avança se não for número (espaços)
+                ptr++; 
             } else {
                 if (cont >= capacidade) {
                     capacidade *= 2;
@@ -75,19 +73,16 @@ int main() {
     free(linha);
     fclose(arquivo);
 
-    // Executando os testes
     for (int i = 0; i < qtdLinhas; i++) {
         long long tempoMergeAux = 0;
         long long tempoMergeParallelAux = 0;
         size_t tamArray = listaNumeros[i].tamanho;
         size_t bytesArray = tamArray * sizeof(int);
 
-        // Aloca vetores de teste que serão resetados a cada iteração
         int *listaTeste1 = (int *)malloc(bytesArray);
         int *listaTeste2 = (int *)malloc(bytesArray);
 
         for (int j = 0; j < 15; j++) {
-            // memcpy é a forma mais rápida de copiar arrays em C (equivale a new ArrayList<>(listaNumero))
             memcpy(listaTeste1, listaNumeros[i].dados, bytesArray);
             memcpy(listaTeste2, listaNumeros[i].dados, bytesArray);
 
@@ -112,7 +107,6 @@ int main() {
         free(listaTeste2);
     }
 
-    // Saída dos resultados
     printf("Tempos medios apos 15 testes: \n");
     printf("Metodo - 10^2  /  10^3  /  10^4  /  10^5  /  10^6\n");
    
@@ -126,7 +120,6 @@ int main() {
     }
     printf("\n");
 
-    // Libera a memória da matriz original
     for (int i = 0; i < qtdLinhas; i++) {
         free(listaNumeros[i].dados);
     }
