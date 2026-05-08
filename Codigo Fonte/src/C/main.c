@@ -12,7 +12,7 @@ void mergeSort(int *array, int inicio, int fim);
 void paralleMergeSort(int *array, int indxEsq, int indxDir, int profundidade);
 void merge(int *array, int indxEsq, int meio, int indxDir);
 
-#define LIMITE_PARALELO 3
+#define LIMITE_PARALELO 1
 
 // Função para pegar o tempo em milissegundos
 long long currentTimeMillis() {
@@ -84,10 +84,10 @@ void processarArquivo(const char *caminho) {
     }
 
     for (int i = 0; i < qtdLinhas; i++) {
-        long long tempoMergeAux         = 0;
-        long long tempoMergeParallelAux = 0;
-        long long memMergeAux           = 0;
-        long long memParallelAux        = 0;
+        double tempoMergeAux         = 0;
+        double tempoMergeParallelAux = 0;
+        long long memMergeAux        = 0;
+        long long memParallelAux     = 0;
 
         size_t tamArray   = listaNumeros[i].tamanho;
         size_t bytesArray = tamArray * sizeof(int);
@@ -100,29 +100,29 @@ void processarArquivo(const char *caminho) {
             memcpy(listaTeste2, listaNumeros[i].dados, bytesArray);
 
             // --- MEDINDO O MERGESORT NORMAL ---
-            memoria_alocada_bytes = 0; // Zera o taxímetro antes de rodar
-            long long inicio1   = currentTimeMillis();
+            memoria_alocada_bytes = 0;
+            long long inicio1     = currentTimeMillis();
             mergeSort(listaTeste1, 0, tamArray - 1);
-            long long fim1      = currentTimeMillis();
-            long long memMergeKb = memoria_alocada_bytes / 1024; // Converte para KB após a execução
+            long long fim1        = currentTimeMillis();
+            long long memMergeKb  = memoria_alocada_bytes / 1024;
 
             // --- MEDINDO O PARALLEL MERGESORT ---
-            memoria_alocada_bytes = 0; // Zera o taxímetro antes de rodar
-            long long inicio2   = currentTimeMillis();
+            memoria_alocada_bytes  = 0;
+            long long inicio2      = currentTimeMillis();
             paralleMergeSort(listaTeste2, 0, tamArray - 1, LIMITE_PARALELO);
-            long long fim2      = currentTimeMillis();
-            long long memParallelKb = memoria_alocada_bytes / 1024; // Converte para KB após a execução
+            long long fim2         = currentTimeMillis();
+            long long memParallelKb = memoria_alocada_bytes / 1024;
 
-            tempoMergeAux         += (fim1 - inicio1);
-            tempoMergeParallelAux += (fim2 - inicio2);
+            tempoMergeAux         += (fim1 - inicio1) / 1000.0;
+            tempoMergeParallelAux += (fim2 - inicio2) / 1000.0;
             memMergeAux           += memMergeKb;
             memParallelAux        += memParallelKb;
         }
 
-        temposMediosMerge[i]    = (double)tempoMergeAux         / 15.0;
-        temposMediosParallel[i] = (double)tempoMergeParallelAux / 15.0;
-        memMediasMerge[i]       = (double)memMergeAux           / 15.0;
-        memMediasParallel[i]    = (double)memParallelAux        / 15.0;
+        temposMediosMerge[i]    = tempoMergeAux         / 15.0;
+        temposMediosParallel[i] = tempoMergeParallelAux / 15.0;
+        memMediasMerge[i]       = (double)memMergeAux   / 15.0;
+        memMediasParallel[i]    = (double)memParallelAux / 15.0;
 
         free(listaTeste1);
         free(listaTeste2);
@@ -130,21 +130,21 @@ void processarArquivo(const char *caminho) {
 
     printf("Metodo     - 10^2  /  10^3  /  10^4  /  10^5  /  10^6\n");
 
-    printf("Merge  (ms)  ");
+    printf("Merge  (s)   ");
     for (int i = 0; i < qtdLinhas; i++)
-        printf("%.2f%s", temposMediosMerge[i], (i == qtdLinhas - 1) ? "" : " / ");
+        printf("%g%s", temposMediosMerge[i], (i == qtdLinhas - 1) ? "" : " / ");
 
     printf("\nMerge  (KB)  ");
     for (int i = 0; i < qtdLinhas; i++)
-        printf("%.2f%s", memMediasMerge[i], (i == qtdLinhas - 1) ? "" : " / ");
+        printf("%g%s", memMediasMerge[i], (i == qtdLinhas - 1) ? "" : " / ");
 
-    printf("\nParall (ms)  ");
+    printf("\nParall (s)   ");
     for (int i = 0; i < qtdLinhas; i++)
-        printf("%.2f%s", temposMediosParallel[i], (i == qtdLinhas - 1) ? "" : " / ");
+        printf("%g%s", temposMediosParallel[i], (i == qtdLinhas - 1) ? "" : " / ");
 
     printf("\nParall (KB)  ");
     for (int i = 0; i < qtdLinhas; i++)
-        printf("%.2f%s", memMediasParallel[i], (i == qtdLinhas - 1) ? "" : " / ");
+        printf("%g%s", memMediasParallel[i], (i == qtdLinhas - 1) ? "" : " / ");
 
     printf("\n\n");
 

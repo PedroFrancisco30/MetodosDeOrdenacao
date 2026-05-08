@@ -113,7 +113,7 @@ void executar_benchmark(const string& caminho, const string& titulo,
 
 int main() {
     MergeSort ms;
-    ParallelMergeSort pms(3);
+    ParallelMergeSort pms(2);
     Benchmark bench(15);
 
     executar_benchmark("../../config/input/random.dat",      "Randomico",   bench, ms, pms);
