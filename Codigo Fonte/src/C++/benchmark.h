@@ -7,6 +7,7 @@ struct BenchmarkResult {
     int entradas;
     std::string nome;
     double media;
+    long memoria_pico_kb;
 };
 
 class Benchmark {

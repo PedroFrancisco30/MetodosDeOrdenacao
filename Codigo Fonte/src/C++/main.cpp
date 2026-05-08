@@ -9,138 +9,74 @@
 #include "parallelmergesort.h"
 using namespace std;
 
-int main() {
-
-    // Criação do vetor random
-
-    ifstream arquivo1("../../config/input/random.dat");
-
-    if (!arquivo1.is_open()) {
-        cout << "Erro ao ler o arquivo" << endl;
-        return 1;
+void executar_benchmark(const string& caminho, const string& titulo,
+                        Benchmark& bench, MergeSort& ms, ParallelMergeSort& pms) {
+    ifstream arquivo(caminho);
+    if (!arquivo.is_open()) {
+        cout << "Erro ao ler o arquivo: " << caminho << endl;
+        return;
     }
 
+    cout << titulo << ":\n";
+    cout << "--------------------------------------\n";
+
+    string linha;
+    int linha_atual = 0;
+    vector<double> medias1, medias2;
+    vector<long>   mems1,   mems2;
+
+    while (getline(arquivo, linha)) {
+        vector<int> vetor_base;
+        stringstream ss(linha);
+        int numero;
+        while (ss >> numero)
+            vetor_base.push_back(numero);
+
+        int entradas = (int)vetor_base.size();
+        auto r1 = bench.executar(ms,  vetor_base, "mergesort",          entradas);
+        auto r2 = bench.executar(pms, vetor_base, "parallel mergesort", entradas);
+
+        medias1.push_back(r1.media);
+        medias2.push_back(r2.media);
+        mems1.push_back(r1.memoria_pico_kb);
+        mems2.push_back(r2.memoria_pico_kb);
+
+        linha_atual++;
+    }
+
+
+    cout << "Entradas:               ";
+    for (int i = 0; i < (int)medias1.size(); i++)
+        cout << "10^" << (i + 2) << (i + 1 < (int)medias1.size() ? " / " : "\n");
+
+    cout << fixed << setprecision(6);
+    cout << "mergesort (tempo):      ";
+    for (int i = 0; i < (int)medias1.size(); i++)
+        cout << medias1[i] << "s" << (i + 1 < (int)medias1.size() ? " / " : "\n");
+
+    cout << "parallel ms (tempo):    ";
+    for (int i = 0; i < (int)medias2.size(); i++)
+        cout << medias2[i] << "s" << (i + 1 < (int)medias2.size() ? " / " : "\n");
+
+    cout << "mergesort (mem KB):     ";
+    for (int i = 0; i < (int)mems1.size(); i++)
+        cout << mems1[i] << (i + 1 < (int)mems1.size() ? " / " : "\n");
+
+    cout << "parallel ms (mem KB):   ";
+    for (int i = 0; i < (int)mems2.size(); i++)
+        cout << mems2[i] << (i + 1 < (int)mems2.size() ? " / " : "\n");
+
+    cout << "--------------------------------------\n\n";
+}
+
+int main() {
     MergeSort ms;
     ParallelMergeSort pms(3);
     Benchmark bench(15);
 
-    string linha;
-    int linha_atual = 0;
-
-    cout << "Randomico:" << endl;
-    cout << "--------------------------------------" << endl;
-
-    while (getline(arquivo1, linha)) {
-        vector<int> vetor_base;
-        stringstream ss(linha);
-        int numero;
-        while (ss >> numero) {
-            vetor_base.push_back(numero);
-        }
-
-        int entradas = (int)pow(10, linha_atual + 2);
-
-        // Teste entradas random
-        auto r1 = bench.executar(ms,  vetor_base, "mergesort",          entradas);
-        auto r2 = bench.executar(pms, vetor_base, "parallel mergesort", entradas);
-
-        cout << (int)pow(10, linha_atual + 2) << " entradas:" << endl;
-        cout << fixed << setprecision(6);
-        cout << "Média mergesort:          " << r1.media << "s" << endl;
-        cout << "Média parallel mergesort: " << r2.media << "s" << endl;
-        cout << "--------------------------------------" << endl;
-        
-
-        linha_atual++;
-    }
-
-    arquivo1.close();
-
-    cout << "\n";
-
-
-    // Criação do Vetor Crescente
-
-    ifstream arquivo2("../../config/input/crescente.dat");
-
-    if (!arquivo2.is_open()) {
-        cout << "Erro ao ler o arquivo" << endl;
-        return 1;
-    }
-
-    linha_atual = 0;
-
-    cout << "Crescente:" << endl;
-    cout << "--------------------------------------" << endl;
-
-    while (getline(arquivo2, linha)) {
-        vector<int> vetor_base;
-        stringstream ss(linha);
-        int numero;
-        while (ss >> numero) {
-            vetor_base.push_back(numero);
-        }
-
-        int entradas = (int)pow(10, linha_atual + 2);
-
-        // Teste entradas random
-        auto r1 = bench.executar(ms,  vetor_base, "mergesort",          entradas);
-        auto r2 = bench.executar(pms, vetor_base, "parallel mergesort", entradas);
-
-        cout << (int)pow(10, linha_atual + 2) << " entradas:" << endl;
-        cout << fixed << setprecision(6);
-        cout << "Média mergesort:          " << r1.media << "s" << endl;
-        cout << "Média parallel mergesort: " << r2.media << "s" << endl;
-        cout << "--------------------------------------" << endl;
-
-        linha_atual++;
-    }
-
-    arquivo2.close();
-
-    cout << "\n";
-
-
-    // Criação do Vetor decrescente
-
-    ifstream arquivo3("../../config/input/decrescente.dat");
-
-    if (!arquivo3.is_open()) {
-        cout << "Erro ao ler o arquivo" << endl;
-        return 1;
-    }
-
-    linha_atual = 0;
-
-    cout << "Descrescente:" << endl;
-    cout << "--------------------------------------" << endl;
-
-    while (getline(arquivo3, linha)) {
-        vector<int> vetor_base;
-        stringstream ss(linha);
-        int numero;
-        while (ss >> numero) {
-            vetor_base.push_back(numero);
-        }
-
-        int entradas = (int)pow(10, linha_atual + 2);
-
-        // Teste entradas random
-        auto r1 = bench.executar(ms,  vetor_base, "mergesort",          entradas);
-        auto r2 = bench.executar(pms, vetor_base, "parallel mergesort", entradas);
-
-        cout << (int)pow(10, linha_atual + 2) << " entradas:" << endl;
-        cout << fixed << setprecision(6);
-        cout << "Média mergesort:          " << r1.media << "s" << endl;
-        cout << "Média parallel mergesort: " << r2.media << "s" << endl;
-        cout << "--------------------------------------" << endl;
-
-        linha_atual++;
-    }
-
-    arquivo3.close();
-
-    cout << "\n";
+    executar_benchmark("../../config/input/random.dat",      "Randomico",   bench, ms, pms);
+    executar_benchmark("../../config/input/crescente.dat",   "Crescente",   bench, ms, pms);
+    executar_benchmark("../../config/input/decrescente.dat", "Decrescente", bench, ms, pms);
 
     return 0;
 }

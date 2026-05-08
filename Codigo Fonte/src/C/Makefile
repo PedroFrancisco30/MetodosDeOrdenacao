@@ -3,22 +3,20 @@ CFLAGS   := -Wall -Wextra -Werror -pthread
 LDFLAGS  := -lm -pthread
 BUILD    := ./build
 OBJ_DIR  := $(BUILD)/objects
-APP_DIR  := $(BUILD)/
+APP_DIR  := $(BUILD)
 TARGET   := app
-INCLUDE  := -Iinclude/
-SRC      := $(wildcard src/*.c)
+INCLUDE  := -I.
+SRC      := $(wildcard *.c)
 
-OBJECTS  := $(SRC:src/%.c=$(OBJ_DIR)/%.o)
+OBJECTS  := $(patsubst %.c,$(OBJ_DIR)/%.o,$(SRC))
 
 all: build $(APP_DIR)/$(TARGET)
 
-$(OBJ_DIR)/%.o: src/%.c
-	@mkdir -p $(@D)
-	$(CC) $(CFLAGS) $(INCLUDE) -o $@ -c $<
+$(OBJ_DIR)/%.o: %.c
+	$(CC) $(CFLAGS) $(INCLUDE) -c $< -o $@
 
 $(APP_DIR)/$(TARGET): $(OBJECTS)
-	@mkdir -p $(@D)
-	$(CC) $(CFLAGS) $(INCLUDE) -o $(APP_DIR)/$(TARGET) $(OBJECTS) $(LDFLAGS)
+	$(CC) $(CFLAGS) $(INCLUDE) -o $@ $(OBJECTS) $(LDFLAGS)
 
 .PHONY: all build clean debug release run
 
@@ -33,8 +31,8 @@ release: CFLAGS += -O3
 release: all
 
 clean:
-	-@rm -rvf $(OBJ_DIR)/*
-	-@rm -rvf $(APP_DIR)/*
+	-@rm -rvf $(OBJ_DIR)
+	-@rm -rvf $(APP_DIR)/$(TARGET)
 
-run:
-	./$(BUILD)/$(TARGET)
+run: all
+	./$(APP_DIR)/$(TARGET)

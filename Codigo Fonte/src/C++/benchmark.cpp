@@ -1,22 +1,24 @@
 #include "benchmark.h"
 #include <chrono>
-using namespace std;
 
 Benchmark::Benchmark(int execucoes) : execucoes_(execucoes) {}
 
 BenchmarkResult Benchmark::executar(Sorter& sorter,
-                                    const vector<int>& vetor_base,
-                                    const string& nome,
-                                    int entradas) {
-    double total = 0;
+                                     const std::vector<int>& vetor_base,
+                                     const std::string& nome,
+                                     int entradas) {
+    double tempo_total = 0.0;
+    long memoria_pico_kb = ((long)vetor_base.size() * sizeof(int) + 1023) / 1024;
 
     for (int i = 0; i < execucoes_; i++) {
-        vector<int> copia = vetor_base;
-        auto inicio = chrono::high_resolution_clock::now();
-        sorter.ordenar(copia, 0, copia.size() - 1);
-        auto fim = chrono::high_resolution_clock::now();
-        total += chrono::duration<double>(fim - inicio).count();
+        std::vector<int> copia(vetor_base);
+
+        auto inicio = std::chrono::high_resolution_clock::now();
+        sorter.ordenar(copia, 0, (int)copia.size() - 1);
+        auto fim = std::chrono::high_resolution_clock::now();
+
+        tempo_total += std::chrono::duration<double>(fim - inicio).count();
     }
 
-    return { entradas, nome, total / execucoes_ };
+    return { entradas, nome, tempo_total / execucoes_, memoria_pico_kb };
 }

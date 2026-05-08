@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include "merge_sort.h" 
 
 void merge(int *array, int indxEsq, int meio, int indxDir) {
     int n1 = meio - indxEsq + 1;
