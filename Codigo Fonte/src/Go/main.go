@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"runtime"
 	"strconv"
 	"strings"
 	"time"
@@ -17,16 +18,15 @@ func lerNumerosDoArquivo(caminho string, limite int) ([]int, error) {
 	if err != nil {
 		return nil, fmt.Errorf("erro ao abrir arquivo: %w", err)
 	}
-	defer arquivo.Close()// Garante que o arquivo será fechado quando a função terminar,
+	defer arquivo.Close()
 
 	numeros := make([]int, 0, limite)
-	scanner := bufio.NewScanner(arquivo)	// bufio.Scanner lê o arquivo linha por linha sem carregar tudo na memória
+	scanner := bufio.NewScanner(arquivo)
 	scanner.Buffer(make([]byte, 10*1024*1024), 10*1024*1024)
 
-	// Lê linha por linha enquanto não atingir o limite de números
 	for scanner.Scan() && len(numeros) < limite {
 		linha := scanner.Text()
-		campos := strings.Fields(linha)		// strings.Fields separa a linha pelos espaços
+		campos := strings.Fields(linha)
 		for _, campo := range campos {
 			if len(numeros) >= limite {
 				break
@@ -46,24 +46,38 @@ func lerNumerosDoArquivo(caminho string, limite int) ([]int, error) {
 	return numeros, nil
 }
 
+// medirMemoria retorna quantos KB foram alocados durante a execução da função f
+func medirMemoria(f func()) uint64 {
+	runtime.GC() // força GC antes para limpar lixo anterior
+	var antes, depois runtime.MemStats
+	runtime.ReadMemStats(&antes)
+
+	f()
+
+	runtime.ReadMemStats(&depois)
+	alocado := depois.TotalAlloc - antes.TotalAlloc
+	return alocado / 1024 // converte bytes → KB
+}
+
 func main() {
 	arquivos := []struct {
 		nome    string
 		caminho string
 	}{
-		{"random.dat", "/home/chicao/MetodosDeOrdenacao/Codigo Fonte/config/input/random.dat"},
-		{"crescente.dat", "/home/chicao/MetodosDeOrdenacao/Codigo Fonte/config/input/crescente.dat"},
-		{"decrescente.dat", "/home/chicao/MetodosDeOrdenacao/Codigo Fonte/config/input/decrescente.dat"},
+		{"random.dat", "../../config/input/random.dat"},
+		{"crescente.dat", "../../config/input/crescente.dat"},
+		{"decrescente.dat", "../../config/input/decrescente.dat"},
 	}
 
 	limites := []int{100, 1_000, 10_000, 100_000, 1_000_000}
 
 	for _, arquivo := range arquivos {
-		fmt.Println("=================================================")
+		fmt.Println("=============================================================================================================")
 		fmt.Printf("   Arquivo: %s\n", arquivo.nome)
-		fmt.Println("=================================================")
-		fmt.Printf("%-15s  %-20s  %-20s\n", "Entradas (n)", "MergeSort", "ParallelMergeSort")
-		fmt.Println("-------------------------------------------------")
+		fmt.Println("=============================================================================================================")
+		fmt.Printf("%-18s  %-20s %-12s  %-20s %-12s\n",
+			"Entradas (n)", "MergeSort", "Mem(KB)", "ParallelMergeSort", "Mem(KB)")
+		fmt.Println("-------------------------------------------------------------------------------------------------------------")
 
 		for _, limite := range limites {
 			numeros, err := lerNumerosDoArquivo(arquivo.caminho, limite)
@@ -72,21 +86,26 @@ func main() {
 				continue
 			}
 
-			// Cria uma cópia dos dados para o MergeSort.
 			copia1 := make([]int, len(numeros))
 			copy(copia1, numeros)
 
-			// Cria uma segunda cópia para o ParallelMergeSort
 			copia2 := make([]int, len(numeros))
 			copy(copia2, numeros)
 
-			inicio := time.Now()
-			mergesort.MergeSort(copia1)
-			tempoMerge := time.Since(inicio)
+			var tempoMerge time.Duration
+			var tempoParallel time.Duration
 
-			inicio = time.Now()
-			parallelmergesort.ParallelMergeSort(copia2, 0)
-			tempoParallel := time.Since(inicio)
+			memMerge := medirMemoria(func() {
+				inicio := time.Now()
+				mergesort.MergeSort(copia1)
+				tempoMerge = time.Since(inicio)
+			})
+
+			memParallel := medirMemoria(func() {
+				inicio := time.Now()
+				parallelmergesort.ParallelMergeSort(copia2, 0)
+				tempoParallel = time.Since(inicio)
+			})
 
 			exp := 0
 			tmp := limite
@@ -95,14 +114,16 @@ func main() {
 				exp++
 			}
 
-			fmt.Printf("%-15s  %-20s  %-20s\n",
+			fmt.Printf("%-18s  %-20s %-12d  %-20s %-12d\n",
 				fmt.Sprintf("10^%d (%d)", exp, limite),
 				tempoMerge,
+				memMerge,
 				tempoParallel,
+				memParallel,
 			)
 		}
 
-		fmt.Println("=================================================")
+		fmt.Println("=============================================================================================================")
 		fmt.Println()
 	}
 }
