@@ -1,7 +1,7 @@
 import threading
 from merge_sort import merge
 
-LIMITE_PARALELO = 1
+LIMITE_PARALELO = 2
 
 def parallel_merge_sort(array, indx_esq, indx_dir, profundidade):
     if indx_esq < indx_dir:
