@@ -8,32 +8,29 @@ void paralleMergeSort(int *array, int indxEsq, int indxDir, int profundidade);
 
 #define LIMITE_PARALELO 3
 
-// Função auxiliar para capturar tempo em milissegundos
 long long currentTimeMillis() {
     struct timeval tempo;
     gettimeofday(&tempo, NULL);
     return (tempo.tv_sec * 1000) + (tempo.tv_usec / 1000);
 }
-
-// Estrutura dinâmica para guardar os arrays 
+ 
 typedef struct {
     int *dados;
     size_t tamanho;
 } ArrayDinamico;
 
-int main() {
-    ArrayDinamico listaNumeros[10]; // Suporta até 10 linhas do input.dat (pode aumentar)
+void processarArquivo(const char *caminho) {
+    ArrayDinamico listaNumeros[10]; 
     int qtdLinhas = 0;
-   
+    
     double temposMediosMerge[10] = {0};
     double temposMediosParallel[10] = {0};
 
-    const char *caminho = "input.dat";
     FILE *arquivo = fopen(caminho, "r");
 
     if (!arquivo) {
-        printf("Erro: Não foi possível abrir o arquivo %s\n", caminho);
-        return 1;
+        printf("Erro: Não foi possível abrir o arquivo %s\n\n", caminho);
+        return;
     }
 
     char *linha = NULL;
@@ -47,7 +44,7 @@ int main() {
 
         char *ptr = linha;
         char *fimPtr;
-       
+        
         while (*ptr != '\0') {
             long num = strtol(ptr, &fimPtr, 10);
             if (ptr == fimPtr) {
@@ -73,6 +70,11 @@ int main() {
     free(linha);
     fclose(arquivo);
 
+    if (qtdLinhas == 0) {
+        printf("Aviso: O arquivo %s está vazio ou com formato inválido.\n\n", caminho);
+        return;
+    }
+
     for (int i = 0; i < qtdLinhas; i++) {
         long long tempoMergeAux = 0;
         long long tempoMergeParallelAux = 0;
@@ -86,12 +88,10 @@ int main() {
             memcpy(listaTeste1, listaNumeros[i].dados, bytesArray);
             memcpy(listaTeste2, listaNumeros[i].dados, bytesArray);
 
-            // Teste Sequencial
             long long inicio1 = currentTimeMillis();
             mergeSort(listaTeste1, 0, tamArray - 1);
             long long fim1 = currentTimeMillis();
 
-            // Teste Paralelo
             long long inicio2 = currentTimeMillis();
             paralleMergeSort(listaTeste2, 0, tamArray - 1, LIMITE_PARALELO);
             long long fim2 = currentTimeMillis();
@@ -107,9 +107,8 @@ int main() {
         free(listaTeste2);
     }
 
-    printf("Tempos medios apos 15 testes: \n");
     printf("Metodo - 10^2  /  10^3  /  10^4  /  10^5  /  10^6\n");
-   
+    
     printf("Merge  ");
     for (int i = 0; i < qtdLinhas; i++) {
         printf("%.2f%s", temposMediosMerge[i], (i == qtdLinhas - 1) ? "" : " / ");
@@ -118,10 +117,24 @@ int main() {
     for (int i = 0; i < qtdLinhas; i++) {
         printf("%.2f%s", temposMediosParallel[i], (i == qtdLinhas - 1) ? "" : " / ");
     }
-    printf("\n");
+    printf("\n\n");
 
     for (int i = 0; i < qtdLinhas; i++) {
         free(listaNumeros[i].dados);
+    }
+}
+
+int main() {
+    // Array contendo os caminhos para os 3 arquivos
+    const char *arquivos_input[3] = {
+        "crescente.dat",
+        "decrescente.dat",
+        "random.dat"
+    };
+
+    for (int f = 0; f < 3; f++) {
+        printf("--- Processando resultados para: %s ---\n", arquivos_input[f]);
+        processarArquivo(arquivos_input[f]);
     }
 
     return 0;

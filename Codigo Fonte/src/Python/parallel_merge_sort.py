@@ -1,6 +1,6 @@
 import threading
 
-LIMITE_PARALELO = 3 # Evita explodir threads
+LIMITE_PARALELO = 1 # Evita explodir threads
 
 from merge_sort import merge
 
