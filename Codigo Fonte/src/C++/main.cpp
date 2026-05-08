@@ -32,7 +32,7 @@ void executar_benchmark(const string& caminho, const string& titulo,
         while (ss >> numero)
             vetor_base.push_back(numero);
 
-        int entradas = (int)pow(10, linha_atual + 2);
+        int entradas = (int)vetor_base.size();
         auto r1 = bench.executar(ms,  vetor_base, "mergesort",          entradas);
         auto r2 = bench.executar(pms, vetor_base, "parallel mergesort", entradas);
 
@@ -43,6 +43,7 @@ void executar_benchmark(const string& caminho, const string& titulo,
 
         linha_atual++;
     }
+
 
     cout << "Entradas:               ";
     for (int i = 0; i < (int)medias1.size(); i++)
