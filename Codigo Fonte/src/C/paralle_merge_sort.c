@@ -1,10 +1,8 @@
 #include <stdlib.h>
 #include <pthread.h>
-
-#define LIMITE_PARALELO 3
+#include "merge_sort.h"
 
 void paralleMergeSort(int *array, int indxEsq, int indxDir, int profundidade);
-void merge(int *array, int indxEsq, int meio, int indxDir);
 
 typedef struct {
     int *array;
