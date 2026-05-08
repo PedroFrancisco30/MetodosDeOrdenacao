@@ -4,6 +4,7 @@
 #include <vector>
 #include <iomanip>
 #include <cmath>
+#include <string>
 #include "benchmark.h"
 #include "mergesort.h"
 #include "parallelmergesort.h"
@@ -16,9 +17,6 @@ void executar_benchmark(const string& caminho, const string& titulo,
         cout << "Erro ao ler o arquivo: " << caminho << endl;
         return;
     }
-
-    cout << titulo << ":\n";
-    cout << "--------------------------------------\n";
 
     string linha;
     int linha_atual = 0;
@@ -40,33 +38,77 @@ void executar_benchmark(const string& caminho, const string& titulo,
         medias2.push_back(r2.media);
         mems1.push_back(r1.memoria_pico_kb);
         mems2.push_back(r2.memoria_pico_kb);
-
         linha_atual++;
     }
 
+    int n = (int)medias1.size();
 
-    cout << "Entradas:               ";
-    for (int i = 0; i < (int)medias1.size(); i++)
-        cout << "10^" << (i + 2) << (i + 1 < (int)medias1.size() ? " / " : "\n");
+    vector<int> col_w(n);
+    for (int i = 0; i < n; i++) {
+        string header = "10^" + to_string(i + 2);
 
-    cout << fixed << setprecision(6);
-    cout << "mergesort (tempo):      ";
-    for (int i = 0; i < (int)medias1.size(); i++)
-        cout << medias1[i] << "s" << (i + 1 < (int)medias1.size() ? " / " : "\n");
+        ostringstream t1, t2, m1, m2;
+        t1 << fixed << setprecision(6) << medias1[i] << "s";
+        t2 << fixed << setprecision(6) << medias2[i] << "s";
+        m1 << mems1[i] << " KB";
+        m2 << mems2[i] << " KB";
 
-    cout << "parallel ms (tempo):    ";
-    for (int i = 0; i < (int)medias2.size(); i++)
-        cout << medias2[i] << "s" << (i + 1 < (int)medias2.size() ? " / " : "\n");
+        col_w[i] = max((int)header.size(),
+                   max((int)t1.str().size(),
+                   max((int)t2.str().size(),
+                   max((int)m1.str().size(),
+                       (int)m2.str().size()))));
+    }
 
-    cout << "mergesort (mem KB):     ";
-    for (int i = 0; i < (int)mems1.size(); i++)
-        cout << mems1[i] << (i + 1 < (int)mems1.size() ? " / " : "\n");
+    const int LABEL_W = 24;
+    const string SEP = " | ";
 
-    cout << "parallel ms (mem KB):   ";
-    for (int i = 0; i < (int)mems2.size(); i++)
-        cout << mems2[i] << (i + 1 < (int)mems2.size() ? " / " : "\n");
+    int total_w = LABEL_W;
+    for (int i = 0; i < n; i++)
+        total_w += (int)SEP.size() + col_w[i];
 
-    cout << "--------------------------------------\n\n";
+    auto print_row = [&](const string& label, const vector<string>& vals) {
+        cout << left << setw(LABEL_W) << label;
+        for (int i = 0; i < n; i++)
+            cout << SEP << right << setw(col_w[i]) << vals[i];
+        cout << "\n";
+    };
+
+    cout << "\n" << titulo << ":\n";
+    cout << string(total_w, '-') << "\n";
+
+    vector<string> headers(n);
+    for (int i = 0; i < n; i++)
+        headers[i] = "10^" + to_string(i + 2);
+    print_row("Entradas", headers);
+
+    cout << string(total_w, '-') << "\n";
+
+    vector<string> v1(n), v2(n);
+    for (int i = 0; i < n; i++) {
+        ostringstream s; s << fixed << setprecision(6) << medias1[i] << "s";
+        v1[i] = s.str();
+    }
+    for (int i = 0; i < n; i++) {
+        ostringstream s; s << fixed << setprecision(6) << medias2[i] << "s";
+        v2[i] = s.str();
+    }
+    print_row("mergesort (tempo)", v1);
+    print_row("parallel ms (tempo)", v2);
+
+    cout << string(total_w, '-') << "\n";
+
+    vector<string> m1v(n), m2v(n);
+    for (int i = 0; i < n; i++) {
+        ostringstream s; s << mems1[i] << " KB"; m1v[i] = s.str();
+    }
+    for (int i = 0; i < n; i++) {
+        ostringstream s; s << mems2[i] << " KB"; m2v[i] = s.str();
+    }
+    print_row("mergesort (mem)", m1v);
+    print_row("parallel ms (mem)", m2v);
+
+    cout << string(total_w, '-') << "\n";
 }
 
 int main() {

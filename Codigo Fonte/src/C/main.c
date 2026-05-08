@@ -3,23 +3,22 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/time.h>
-#include <malloc.h>
 
+// 1. Variável global ("taxímetro" de memória)
+long long memoria_alocada_bytes = 0;
 
-void mergeSort(int *array, int indxEsq, int indxDir);
+// 2. Protótipos das funções
+void mergeSort(int *array, int inicio, int fim);
 void paralleMergeSort(int *array, int indxEsq, int indxDir, int profundidade);
+void merge(int *array, int indxEsq, int meio, int indxDir);
 
 #define LIMITE_PARALELO 3
 
+// Função para pegar o tempo em milissegundos
 long long currentTimeMillis() {
     struct timeval tempo;
     gettimeofday(&tempo, NULL);
     return (tempo.tv_sec * 1000) + (tempo.tv_usec / 1000);
-}
-
-long long getMemoriaKB() {
-    struct mallinfo2 info = mallinfo2();
-    return (long long)(info.uordblks / 1024); // bytes alocados → KB
 }
 
 typedef struct {
@@ -85,10 +84,10 @@ void processarArquivo(const char *caminho) {
     }
 
     for (int i = 0; i < qtdLinhas; i++) {
-        long long tempoMergeAux        = 0;
+        long long tempoMergeAux         = 0;
         long long tempoMergeParallelAux = 0;
-        long long memMergeAux          = 0;
-        long long memParallelAux       = 0;
+        long long memMergeAux           = 0;
+        long long memParallelAux        = 0;
 
         size_t tamArray   = listaNumeros[i].tamanho;
         size_t bytesArray = tamArray * sizeof(int);
@@ -100,28 +99,30 @@ void processarArquivo(const char *caminho) {
             memcpy(listaTeste1, listaNumeros[i].dados, bytesArray);
             memcpy(listaTeste2, listaNumeros[i].dados, bytesArray);
 
-            long long memAntes1 = getMemoriaKB();
+            // --- MEDINDO O MERGESORT NORMAL ---
+            memoria_alocada_bytes = 0; // Zera o taxímetro antes de rodar
             long long inicio1   = currentTimeMillis();
             mergeSort(listaTeste1, 0, tamArray - 1);
             long long fim1      = currentTimeMillis();
-            long long memDepois1 = getMemoriaKB();
+            long long memMergeKb = memoria_alocada_bytes / 1024; // Converte para KB após a execução
 
-            long long memAntes2 = getMemoriaKB();
+            // --- MEDINDO O PARALLEL MERGESORT ---
+            memoria_alocada_bytes = 0; // Zera o taxímetro antes de rodar
             long long inicio2   = currentTimeMillis();
             paralleMergeSort(listaTeste2, 0, tamArray - 1, LIMITE_PARALELO);
             long long fim2      = currentTimeMillis();
-            long long memDepois2 = getMemoriaKB();
+            long long memParallelKb = memoria_alocada_bytes / 1024; // Converte para KB após a execução
 
-            tempoMergeAux        += (fim1 - inicio1);
+            tempoMergeAux         += (fim1 - inicio1);
             tempoMergeParallelAux += (fim2 - inicio2);
-            memMergeAux          += (memDepois1 - memAntes1);
-            memParallelAux       += (memDepois2 - memAntes2);
+            memMergeAux           += memMergeKb;
+            memParallelAux        += memParallelKb;
         }
 
-        temposMediosMerge[i]    = (double)tempoMergeAux        / 15.0;
+        temposMediosMerge[i]    = (double)tempoMergeAux         / 15.0;
         temposMediosParallel[i] = (double)tempoMergeParallelAux / 15.0;
-        memMediasMerge[i]       = (double)memMergeAux          / 15.0;
-        memMediasParallel[i]    = (double)memParallelAux       / 15.0;
+        memMediasMerge[i]       = (double)memMergeAux           / 15.0;
+        memMediasParallel[i]    = (double)memParallelAux        / 15.0;
 
         free(listaTeste1);
         free(listaTeste2);

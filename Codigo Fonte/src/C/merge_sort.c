@@ -1,9 +1,13 @@
 #include <stdlib.h>
 #include "merge_sort.h" 
 
+extern long long memoria_alocada_bytes;
+
 void merge(int *array, int indxEsq, int meio, int indxDir) {
     int n1 = meio - indxEsq + 1;
     int n2 = indxDir - meio;
+
+    memoria_alocada_bytes += (n1 + n2) * sizeof(int);
 
     int *ladoEsq = (int *)malloc(n1 * sizeof(int));
     int *ladoDir = (int *)malloc(n2 * sizeof(int));
