@@ -1,23 +1,22 @@
 import time
 import os
-import tracemalloc
 from parallel_merge_sort import parallel_merge_sort, LIMITE_PARALELO
 
+RUNS = 15
 
 # ==================== MEDICAO ====================
 
-def medir_tempo(func, lista, *args):
+def medir_tempo(func, lista, profundidade):
+    mem_descartada = [0]
     inicio = time.time()
-    func(lista, 0, len(lista) - 1, *args)
+    func(lista, 0, len(lista) - 1, profundidade, mem_descartada)
     return time.time() - inicio
 
 
-def medir_memoria(func, lista, *args):
-    tracemalloc.start()
-    func(lista, 0, len(lista) - 1, *args)
-    _, pico = tracemalloc.get_traced_memory()
-    tracemalloc.stop()
-    return pico / 1024
+def medir_memoria(func, lista, profundidade):
+    mem = [0]
+    func(lista, 0, len(lista) - 1, profundidade, mem)
+    return mem[0] / 1024
 
 
 # ==================== PROCESSAMENTO ====================
@@ -40,27 +39,24 @@ def processar_arquivo(caminho_arquivo):
         return
 
     tempos_parallel = []
-    mems_parallel = []
+    mems_parallel   = []
 
     for lista_numero in lista_numeros:
+        # --- 15 runs para tempo ---
         t_parallel = 0.0
-
-        for _ in range(15):
+        for _ in range(RUNS):
             t_parallel += medir_tempo(parallel_merge_sort, list(lista_numero), LIMITE_PARALELO)
+        tempos_parallel.append(t_parallel / RUNS)
 
-        m_parallel = medir_memoria(parallel_merge_sort, list(lista_numero), LIMITE_PARALELO)
-
-        tempos_parallel.append(t_parallel / 15)
-        mems_parallel.append(m_parallel)
+        # --- 1 run separado para memória ---
+        mems_parallel.append(medir_memoria(parallel_merge_sort, list(lista_numero), LIMITE_PARALELO))
 
     tamanhos = [f"10^{p}" for p in range(2, 2 + len(lista_numeros))]
 
-    print(f"{'Tamanho':<10} {'Tempo Medio (s)':<22} {'Memoria Media (KB)'}")
+    print(f"{'Tamanho':<10} {'Tempo Medio (s)':<22} {'Memoria (KB)'}")
     print("-" * 55)
-
     for i, tam in enumerate(tamanhos):
         print(f"{tam:<10} {tempos_parallel[i]:<22.6f} {mems_parallel[i]:.2f}")
-
     print()
 
 

@@ -4,14 +4,16 @@ import (
 	"bufio"
 	"fmt"
 	"os"
-	"runtime"
 	"strconv"
 	"strings"
+	"sync/atomic"
 	"time"
 
 	"MetodosDeOrdenacao/mergesort"
 	"MetodosDeOrdenacao/parallelmergesort"
 )
+
+const RUNS = 15
 
 func lerNumerosDoArquivo(caminho string, limite int) ([]int, error) {
 	arquivo, err := os.Open(caminho)
@@ -26,8 +28,7 @@ func lerNumerosDoArquivo(caminho string, limite int) ([]int, error) {
 
 	for scanner.Scan() && len(numeros) < limite {
 		linha := scanner.Text()
-		campos := strings.Fields(linha)
-		for _, campo := range campos {
+		for _, campo := range strings.Fields(linha) {
 			if len(numeros) >= limite {
 				break
 			}
@@ -39,23 +40,7 @@ func lerNumerosDoArquivo(caminho string, limite int) ([]int, error) {
 		}
 	}
 
-	if err := scanner.Err(); err != nil {
-		return nil, fmt.Errorf("erro ao ler arquivo: %w", err)
-	}
-
-	return numeros, nil
-}
-
-func medirMemoria(f func()) uint64 {
-	runtime.GC()
-	var antes, depois runtime.MemStats
-	runtime.ReadMemStats(&antes)
-
-	f()
-
-	runtime.ReadMemStats(&depois)
-	alocado := depois.TotalAlloc - antes.TotalAlloc
-	return alocado / 1024
+	return numeros, scanner.Err()
 }
 
 func main() {
@@ -85,40 +70,49 @@ func main() {
 				continue
 			}
 
+			// --- 15 runs para tempo ---
+			var somaTempoMerge, somaTempoParallel time.Duration
+			for i := 0; i < RUNS; i++ {
+				var memDescartada int64
+
+				copia1 := make([]int, len(numeros))
+				copy(copia1, numeros)
+				t1 := time.Now()
+				mergesort.MergeSort(copia1, &memDescartada)
+				somaTempoMerge += time.Since(t1)
+
+				atomic.StoreInt64(&memDescartada, 0)
+				copia2 := make([]int, len(numeros))
+				copy(copia2, numeros)
+				t2 := time.Now()
+				parallelmergesort.ParallelMergeSort(copia2, 0, &memDescartada)
+				somaTempoParallel += time.Since(t2)
+			}
+			tempoMerge    := somaTempoMerge    / RUNS
+			tempoParallel := somaTempoParallel / RUNS
+
+			// --- 1 run separado para memória ---
+			var memMerge, memParallel int64
+
 			copia1 := make([]int, len(numeros))
 			copy(copia1, numeros)
+			mergesort.MergeSort(copia1, &memMerge)
 
 			copia2 := make([]int, len(numeros))
 			copy(copia2, numeros)
-
-			var tempoMerge time.Duration
-			var tempoParallel time.Duration
-
-			memMerge := medirMemoria(func() {
-				inicio := time.Now()
-				mergesort.MergeSort(copia1)
-				tempoMerge = time.Since(inicio)
-			})
-
-			memParallel := medirMemoria(func() {
-				inicio := time.Now()
-				parallelmergesort.ParallelMergeSort(copia2, 0)
-				tempoParallel = time.Since(inicio)
-			})
+			parallelmergesort.ParallelMergeSort(copia2, 0, &memParallel)
 
 			exp := 0
-			tmp := limite
-			for tmp >= 10 {
-				tmp /= 10
+			for tmp := limite; tmp >= 10; tmp /= 10 {
 				exp++
 			}
 
 			fmt.Printf("%-18s  %-20s %-12d  %-20s %-12d\n",
 				fmt.Sprintf("10^%d (%d)", exp, limite),
 				fmt.Sprintf("%.6fs", tempoMerge.Seconds()),
-				memMerge,
+				memMerge/1024,
 				fmt.Sprintf("%.6fs", tempoParallel.Seconds()),
-				memParallel,
+				memParallel/1024,
 			)
 		}
 

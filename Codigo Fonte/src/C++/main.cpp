@@ -21,7 +21,7 @@ void executar_benchmark(const string& caminho, const string& titulo,
     string linha;
     int linha_atual = 0;
     vector<double> medias1, medias2;
-    vector<long>   mems1,   mems2;
+    vector<double> mems1,   mems2;
 
     while (getline(arquivo, linha)) {
         vector<int> vetor_base;
@@ -36,8 +36,8 @@ void executar_benchmark(const string& caminho, const string& titulo,
 
         medias1.push_back(r1.media);
         medias2.push_back(r2.media);
-        mems1.push_back(r1.memoria_pico_kb);
-        mems2.push_back(r2.memoria_pico_kb);
+        mems1.push_back(r1.memoria_kb);
+        mems2.push_back(r2.memoria_kb);
         linha_atual++;
     }
 
@@ -50,8 +50,8 @@ void executar_benchmark(const string& caminho, const string& titulo,
         ostringstream t1, t2, m1, m2;
         t1 << fixed << setprecision(6) << medias1[i] << "s";
         t2 << fixed << setprecision(6) << medias2[i] << "s";
-        m1 << mems1[i] << " KB";
-        m2 << mems2[i] << " KB";
+        m1 << fixed << setprecision(2) << mems1[i] << " KB";
+        m2 << fixed << setprecision(2) << mems2[i] << " KB";
 
         col_w[i] = max((int)header.size(),
                    max((int)t1.str().size(),
@@ -100,10 +100,12 @@ void executar_benchmark(const string& caminho, const string& titulo,
 
     vector<string> m1v(n), m2v(n);
     for (int i = 0; i < n; i++) {
-        ostringstream s; s << mems1[i] << " KB"; m1v[i] = s.str();
+        ostringstream s; s << fixed << setprecision(2) << mems1[i] << " KB";
+        m1v[i] = s.str();
     }
     for (int i = 0; i < n; i++) {
-        ostringstream s; s << mems2[i] << " KB"; m2v[i] = s.str();
+        ostringstream s; s << fixed << setprecision(2) << mems2[i] << " KB";
+        m2v[i] = s.str();
     }
     print_row("mergesort (mem)", m1v);
     print_row("parallel ms (mem)", m2v);

@@ -22,7 +22,7 @@ BenchmarkResult Benchmark::executar(Sorter& sorter,
         std::vector<int> copia(vetor_base);
         sorter.ordenar(copia, 0, (int)copia.size() - 1, mem_bytes);
     }
-    long memoria_pico_kb = (mem_bytes + 1023) / 1024;
+    double memoria_kb = mem_bytes / 1024.0;
 
-    return { entradas, nome, tempo_total / execucoes_, memoria_pico_kb };
+    return { entradas, nome, tempo_total / execucoes_, memoria_kb };
 }

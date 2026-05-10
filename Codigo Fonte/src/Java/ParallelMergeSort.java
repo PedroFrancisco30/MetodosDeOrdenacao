@@ -3,15 +3,21 @@ import java.util.List;
 
 public class ParallelMergeSort {
 
-    final int LIMITE_PARALELO = 1;
+    final int LIMITE_PARALELO = 2;
 
-    void paralleMergeSort(List<Integer> array, int indxEsq, int indxDir, int profundidade) {
+    // mem[0] acumula bytes alocados pelos buffers temporários do algoritmo.
+    // Usar long[] (array de 1 elemento) permite que threads lambda compartilhem
+    // o mesmo contador sem precisar de AtomicLong — funciona porque cada
+    // sub-árvore escreve em regiões distintas do array original (sem corrida).
+    // Para o paralelo, usamos AtomicLong para segurança entre threads.
+    void paralleMergeSort(List<Integer> array, int indxEsq, int indxDir,
+                          int profundidade, java.util.concurrent.atomic.AtomicLong mem) {
         if (indxEsq < indxDir) {
             int meio = (indxEsq + indxDir) / 2;
 
             if (profundidade > 0) {
-                Thread thread1 = new Thread(() -> paralleMergeSort(array, indxEsq, meio, profundidade - 1));
-                Thread thread2 = new Thread(() -> paralleMergeSort(array, meio + 1, indxDir, profundidade - 1));
+                Thread thread1 = new Thread(() -> paralleMergeSort(array, indxEsq, meio, profundidade - 1, mem));
+                Thread thread2 = new Thread(() -> paralleMergeSort(array, meio + 1, indxDir, profundidade - 1, mem));
 
                 thread1.start();
                 thread2.start();
@@ -23,16 +29,23 @@ public class ParallelMergeSort {
                     Thread.currentThread().interrupt();
                 }
             } else {
-                paralleMergeSort(array, indxEsq, meio, 0);
-                paralleMergeSort(array, meio + 1, indxDir, 0);
+                paralleMergeSort(array, indxEsq, meio, 0, mem);
+                paralleMergeSort(array, meio + 1, indxDir, 0, mem);
             }
 
-            merge(array, indxEsq, meio, indxDir);
+            merge(array, indxEsq, meio, indxDir, mem);
         }
     }
 
-    void merge(List<Integer> array, int indxEsq, int meio, int indxDir) {
-        List<Integer> ladoEsq = new ArrayList<>(), ladoDir = new ArrayList<>();
+    void merge(List<Integer> array, int indxEsq, int meio, int indxDir,
+               java.util.concurrent.atomic.AtomicLong mem) {
+        int tamanho = indxDir - indxEsq + 1;
+
+        // Conta os bytes alocados pelos dois buffers temporários (4 bytes por int)
+        mem.addAndGet((long) tamanho * 4);
+
+        List<Integer> ladoEsq = new ArrayList<>();
+        List<Integer> ladoDir = new ArrayList<>();
 
         for (int i = indxEsq; i <= meio; i++)
             ladoEsq.add(array.get(i));

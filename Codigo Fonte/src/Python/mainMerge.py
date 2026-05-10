@@ -1,23 +1,22 @@
 import time
 import os
-import tracemalloc
 from merge_sort import merge_sort
 
+RUNS = 15
 
 # ==================== MEDICAO ====================
 
 def medir_tempo(func, lista, *args):
     inicio = time.time()
-    func(lista, 0, len(lista) - 1, *args)
+    mem_descartada = [0]
+    func(lista, 0, len(lista) - 1, mem_descartada, *args)
     return time.time() - inicio
 
 
 def medir_memoria(func, lista, *args):
-    tracemalloc.start()
-    func(lista, 0, len(lista) - 1, *args)
-    _, pico = tracemalloc.get_traced_memory()
-    tracemalloc.stop()
-    return pico / 1024
+    mem = [0]
+    func(lista, 0, len(lista) - 1, mem, *args)
+    return mem[0] / 1024
 
 
 # ==================== PROCESSAMENTO ====================
@@ -40,27 +39,24 @@ def processar_arquivo(caminho_arquivo):
         return
 
     tempos_merge = []
-    mems_merge = []
+    mems_merge   = []
 
     for lista_numero in lista_numeros:
+        # --- 15 runs para tempo ---
         t_merge = 0.0
-
-        for _ in range(15):
+        for _ in range(RUNS):
             t_merge += medir_tempo(merge_sort, list(lista_numero))
+        tempos_merge.append(t_merge / RUNS)
 
-        m_merge = medir_memoria(merge_sort, list(lista_numero))
-
-        tempos_merge.append(t_merge / 15)
-        mems_merge.append(m_merge)
+        # --- 1 run separado para memória ---
+        mems_merge.append(medir_memoria(merge_sort, list(lista_numero)))
 
     tamanhos = [f"10^{p}" for p in range(2, 2 + len(lista_numeros))]
 
-    print(f"{'Tamanho':<10} {'Tempo Medio (s)':<22} {'Memoria Media (KB)'}")
+    print(f"{'Tamanho':<10} {'Tempo Medio (s)':<22} {'Memoria (KB)'}")
     print("-" * 55)
-
     for i, tam in enumerate(tamanhos):
         print(f"{tam:<10} {tempos_merge[i]:<22.6f} {mems_merge[i]:.2f}")
-
     print()
 
 
