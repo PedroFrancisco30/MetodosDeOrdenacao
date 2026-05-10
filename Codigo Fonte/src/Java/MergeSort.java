@@ -2,17 +2,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MergeSort {
-    static void mergeSort(List<Integer> array, int indxEsq, int indxDir){
-        if(indxEsq < indxDir){
+
+    void mergeSort(List<Integer> array, int indxEsq, int indxDir) {
+        if (indxEsq < indxDir) {
             int meio = (indxEsq + indxDir) / 2;
 
-            mergeSort(array, indxEsq, meio); // Ordena o lado esquerda da metade
-            mergeSort(array, meio+1, indxDir); // Ordena o lado direita a partir da metade
-            merge(array, indxEsq, meio, indxDir); // Mescla os dois index os ordenando,
+            mergeSort(array, indxEsq, meio);
+            mergeSort(array, meio + 1, indxDir);
+            merge(array, indxEsq, meio, indxDir);
         }
     }
 
-    static void merge(List<Integer> array, int indxEsq, int meio,int indxDir){
+    void merge(List<Integer> array, int indxEsq, int meio, int indxDir) {
         List<Integer> ladoEsq = new ArrayList<>(), ladoDir = new ArrayList<>();
 
         for (int i = indxEsq; i <= meio; i++)
@@ -23,24 +24,24 @@ public class MergeSort {
 
         int auxEsq = 0, auxDir = 0, auxArray = indxEsq;
 
-        while (auxEsq < ladoEsq.size() && auxDir < ladoDir.size()){ // Enquanto os dois nao chegarem ao limite
-            if(ladoEsq.get(auxEsq) <= ladoDir.get(auxDir)){
-                array.set(auxArray, ladoEsq.get(auxEsq)); // Joga o elemento pro outro lado do array, ordenando em ele
+        while (auxEsq < ladoEsq.size() && auxDir < ladoDir.size()) {
+            if (ladoEsq.get(auxEsq) <= ladoDir.get(auxDir)) {
+                array.set(auxArray, ladoEsq.get(auxEsq));
                 auxEsq++;
-            }else{
+            } else {
                 array.set(auxArray, ladoDir.get(auxDir));
                 auxDir++;
             }
             auxArray++;
         }
 
-        while (auxEsq < ladoEsq.size()){
+        while (auxEsq < ladoEsq.size()) {
             array.set(auxArray, ladoEsq.get(auxEsq));
             auxEsq++;
             auxArray++;
         }
 
-        while (auxDir < ladoDir.size()){
+        while (auxDir < ladoDir.size()) {
             array.set(auxArray, ladoDir.get(auxDir));
             auxDir++;
             auxArray++;

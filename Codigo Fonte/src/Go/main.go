@@ -46,9 +46,8 @@ func lerNumerosDoArquivo(caminho string, limite int) ([]int, error) {
 	return numeros, nil
 }
 
-// medirMemoria retorna quantos KB foram alocados durante a execução da função f
 func medirMemoria(f func()) uint64 {
-	runtime.GC() // força GC antes para limpar lixo anterior
+	runtime.GC()
 	var antes, depois runtime.MemStats
 	runtime.ReadMemStats(&antes)
 
@@ -56,7 +55,7 @@ func medirMemoria(f func()) uint64 {
 
 	runtime.ReadMemStats(&depois)
 	alocado := depois.TotalAlloc - antes.TotalAlloc
-	return alocado / 1024 // converte bytes → KB
+	return alocado / 1024
 }
 
 func main() {
@@ -76,7 +75,7 @@ func main() {
 		fmt.Printf("   Arquivo: %s\n", arquivo.nome)
 		fmt.Println("=============================================================================================================")
 		fmt.Printf("%-18s  %-20s %-12s  %-20s %-12s\n",
-			"Entradas (n)", "MergeSort", "Mem(KB)", "ParallelMergeSort", "Mem(KB)")
+			"Entradas (n)", "MergeSort (s)", "Mem(KB)", "ParallelMergeSort (s)", "Mem(KB)")
 		fmt.Println("-------------------------------------------------------------------------------------------------------------")
 
 		for _, limite := range limites {
@@ -116,9 +115,9 @@ func main() {
 
 			fmt.Printf("%-18s  %-20s %-12d  %-20s %-12d\n",
 				fmt.Sprintf("10^%d (%d)", exp, limite),
-				tempoMerge,
+				fmt.Sprintf("%.6fs", tempoMerge.Seconds()),
 				memMerge,
-				tempoParallel,
+				fmt.Sprintf("%.6fs", tempoParallel.Seconds()),
 				memParallel,
 			)
 		}

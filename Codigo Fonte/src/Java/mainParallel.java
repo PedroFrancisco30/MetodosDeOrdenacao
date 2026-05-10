@@ -9,6 +9,7 @@ public class mainParallel {
         long tempoTotal = 0;
         long memoriaTotal = 0;
         Runtime runtime = Runtime.getRuntime();
+        ParallelMergeSort sorter = new ParallelMergeSort();
 
         System.out.println("Comparacoes de tempo e memoria:");
 
@@ -24,18 +25,17 @@ public class mainParallel {
             for (int i = 0; i < 15; i++) {
                 listaAux = new ArrayList<>(listaNumeros.subList(0, (int) pow(10, pot)));
 
-                // Força GC antes de medir para limpar lixo anterior
                 runtime.gc();
                 long memAntes = runtime.totalMemory() - runtime.freeMemory();
 
                 long inicio = System.nanoTime();
-                ParallelMergeSort.paralleMergeSort(listaAux, 0, listaAux.size() - 1, ParallelMergeSort.LIMITE_PARALELO);
+                sorter.paralleMergeSort(listaAux, 0, listaAux.size() - 1, sorter.LIMITE_PARALELO);
                 long fim = System.nanoTime();
 
                 long memDepois = runtime.totalMemory() - runtime.freeMemory();
 
-                tempoTotal  += (fim - inicio);
-                memoriaTotal += Math.max(0, memDepois - memAntes); // evita negativo
+                tempoTotal   += (fim - inicio);
+                memoriaTotal += Math.max(0, memDepois - memAntes);
             }
 
             double tempoMedio   = tempoTotal / 1_000_000_000.0 / 15;
@@ -59,7 +59,7 @@ public class mainParallel {
                 long memAntes = runtime.totalMemory() - runtime.freeMemory();
 
                 long inicio = System.nanoTime();
-                ParallelMergeSort.paralleMergeSort(listaAux, 0, listaAux.size() - 1, ParallelMergeSort.LIMITE_PARALELO);
+                sorter.paralleMergeSort(listaAux, 0, listaAux.size() - 1, sorter.LIMITE_PARALELO);
                 long fim = System.nanoTime();
 
                 long memDepois = runtime.totalMemory() - runtime.freeMemory();
@@ -68,8 +68,8 @@ public class mainParallel {
                 memoriaTotal += Math.max(0, memDepois - memAntes);
             }
 
-            double tempoMedio    = tempoTotal / 1_000_000_000.0 / 15;
-            double memoriaMédia  = memoriaTotal / 1024.0 / 15;
+            double tempoMedio   = tempoTotal / 1_000_000_000.0 / 15;
+            double memoriaMédia = memoriaTotal / 1024.0 / 15;
             System.out.printf("10^%d\t\t%.6fs\t\t%.2f KB%n", pot, tempoMedio, memoriaMédia);
         }
 
@@ -89,7 +89,7 @@ public class mainParallel {
                 long memAntes = runtime.totalMemory() - runtime.freeMemory();
 
                 long inicio = System.nanoTime();
-                ParallelMergeSort.paralleMergeSort(listaAux, 0, listaAux.size() - 1, ParallelMergeSort.LIMITE_PARALELO);
+                sorter.paralleMergeSort(listaAux, 0, listaAux.size() - 1, sorter.LIMITE_PARALELO);
                 long fim = System.nanoTime();
 
                 long memDepois = runtime.totalMemory() - runtime.freeMemory();

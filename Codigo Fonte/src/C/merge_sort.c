@@ -1,58 +1,52 @@
 #include <stdlib.h>
-#include "merge_sort.h" 
+#include "merge_sort.h"
 
 extern long long memoria_alocada_bytes;
 
-void merge(int *array, int indxEsq, int meio, int indxDir) {
+static void merge(int *array, int *temp, int indxEsq, int meio, int indxDir) {
     int n1 = meio - indxEsq + 1;
     int n2 = indxDir - meio;
+    int n  = n1 + n2;
 
-    memoria_alocada_bytes += (n1 + n2) * sizeof(int);
+    for (int i = 0; i < n; i++)
+        temp[i] = array[indxEsq + i];
 
-    int *ladoEsq = (int *)malloc(n1 * sizeof(int));
-    int *ladoDir = (int *)malloc(n2 * sizeof(int));
+    int auxEsq   = 0;
+    int auxDir   = n1;
+    int auxArray = indxEsq;
 
-    for (int i = 0; i < n1; i++)
-        ladoEsq[i] = array[indxEsq + i];
-       
-    for (int i = 0; i < n2; i++)
-        ladoDir[i] = array[meio + 1 + i];
-
-    int auxEsq = 0, auxDir = 0, auxArray = indxEsq;
-
-    while (auxEsq < n1 && auxDir < n2) {
-        if (ladoEsq[auxEsq] <= ladoDir[auxDir]) {
-            array[auxArray] = ladoEsq[auxEsq]; 
-            auxEsq++;
-        } else {
-            array[auxArray] = ladoDir[auxDir];
-            auxDir++;
-        }
-        auxArray++;
+    while (auxEsq < n1 && auxDir < n1 + n2) {
+        if (temp[auxEsq] <= temp[auxDir])
+            array[auxArray++] = temp[auxEsq++];
+        else
+            array[auxArray++] = temp[auxDir++];
     }
 
-    while (auxEsq < n1) {
-        array[auxArray] = ladoEsq[auxEsq];
-        auxEsq++;
-        auxArray++;
-    }
+    while (auxEsq < n1)
+        array[auxArray++] = temp[auxEsq++];
 
-    while (auxDir < n2) {
-        array[auxArray] = ladoDir[auxDir];
-        auxDir++;
-        auxArray++;
-    }
+    while (auxDir < n1 + n2)
+        array[auxArray++] = temp[auxDir++];
+}
 
-    free(ladoEsq);
-    free(ladoDir);
+static void mergeSortRec(int *array, int *temp, int indxEsq, int indxDir) {
+    if (indxEsq < indxDir) {
+        int meio = indxEsq + (indxDir - indxEsq) / 2;
+        mergeSortRec(array, temp, indxEsq, meio);
+        mergeSortRec(array, temp, meio + 1, indxDir);
+        merge(array, temp, indxEsq, meio, indxDir);
+    }
 }
 
 void mergeSort(int *array, int indxEsq, int indxDir) {
-    if (indxEsq < indxDir) {
-        int meio = indxEsq + (indxDir - indxEsq) / 2; 
+    if (indxEsq >= indxDir) return;
 
-        mergeSort(array, indxEsq, meio); 
-        mergeSort(array, meio + 1, indxDir); 
-        merge(array, indxEsq, meio, indxDir); 
-    }
+    int n = indxDir - indxEsq + 1;
+    memoria_alocada_bytes += n * sizeof(int);
+
+    int *temp = (int *)malloc(n * sizeof(int));
+    if (!temp) return;
+
+    mergeSortRec(array, temp, indxEsq, indxDir);
+    free(temp);
 }

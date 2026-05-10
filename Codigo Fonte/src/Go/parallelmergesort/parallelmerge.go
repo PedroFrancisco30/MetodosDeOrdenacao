@@ -2,7 +2,7 @@ package parallelmergesort
 
 import "sync"
 
-const LIMITE_GOROUTINES = 12
+const LIMITE_GOROUTINES = 2
 
 func ParallelMergeSort(arr []int, profundidade int) []int {
     if len(arr) <= 1 {

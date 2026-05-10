@@ -10,6 +10,7 @@ public class mainMerge {
         long tempoTotal = 0;
         long memoriaTotal = 0;
         Runtime runtime = Runtime.getRuntime();
+        MergeSort sorter = new MergeSort();
 
         System.out.println("Comparacoes de tempo e memoria:");
 
@@ -29,7 +30,7 @@ public class mainMerge {
                 long memAntes = runtime.totalMemory() - runtime.freeMemory();
 
                 long inicio = System.nanoTime();
-                MergeSort.mergeSort(listaAux, 0, listaAux.size() - 1);
+                sorter.mergeSort(listaAux, 0, listaAux.size() - 1);
                 long fim = System.nanoTime();
 
                 long memDepois = runtime.totalMemory() - runtime.freeMemory();
@@ -59,7 +60,7 @@ public class mainMerge {
                 long memAntes = runtime.totalMemory() - runtime.freeMemory();
 
                 long inicio = System.nanoTime();
-                MergeSort.mergeSort(listaAux, 0, listaAux.size() - 1);
+                sorter.mergeSort(listaAux, 0, listaAux.size() - 1);
                 long fim = System.nanoTime();
 
                 long memDepois = runtime.totalMemory() - runtime.freeMemory();
@@ -89,7 +90,7 @@ public class mainMerge {
                 long memAntes = runtime.totalMemory() - runtime.freeMemory();
 
                 long inicio = System.nanoTime();
-                MergeSort.mergeSort(listaAux, 0, listaAux.size() - 1);
+                sorter.mergeSort(listaAux, 0, listaAux.size() - 1);
                 long fim = System.nanoTime();
 
                 long memDepois = runtime.totalMemory() - runtime.freeMemory();

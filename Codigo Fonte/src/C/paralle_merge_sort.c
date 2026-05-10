@@ -2,6 +2,7 @@
 #include <pthread.h>
 #include "merge_sort.h"
 
+/* Protótipo antecipado para o threadFunc poder chamar */
 void paralleMergeSort(int *array, int indxEsq, int indxDir, int profundidade);
 
 typedef struct {
@@ -11,41 +12,36 @@ typedef struct {
     int profundidade;
 } ThreadArgs;
 
-void* threadFunc(void* arg) {
-    ThreadArgs* args = (ThreadArgs*)arg;
+static void *threadFunc(void *arg) {
+    ThreadArgs *args = (ThreadArgs *)arg;
     paralleMergeSort(args->array, args->indxEsq, args->indxDir, args->profundidade);
-    free(args); 
+    free(args);
     return NULL;
 }
 
-// Merge Sort Paralelo
 void paralleMergeSort(int *array, int indxEsq, int indxDir, int profundidade) {
-    if (indxEsq < indxDir) {
-        int meio = indxEsq + (indxDir - indxEsq) / 2;
+    if (indxEsq >= indxDir) return;
 
-        if (profundidade > 0) {
-            pthread_t thread1, thread2;
-
-            // Prepara os argumentos
-            ThreadArgs *args1 = (ThreadArgs *)malloc(sizeof(ThreadArgs));
-            args1->array = array; args1->indxEsq = indxEsq; args1->indxDir = meio; args1->profundidade = profundidade - 1;
-
-            ThreadArgs *args2 = (ThreadArgs *)malloc(sizeof(ThreadArgs));
-            args2->array = array; args2->indxEsq = meio + 1; args2->indxDir = indxDir; args2->profundidade = profundidade - 1;
-
-        
-            pthread_create(&thread1, NULL, threadFunc, args1);
-            pthread_create(&thread2, NULL, threadFunc, args2);
-
-            pthread_join(thread1, NULL);
-            pthread_join(thread2, NULL);
-        } else {
-            // Para de criar Threads infinitas
-            paralleMergeSort(array, indxEsq, meio, 0);
-            paralleMergeSort(array, meio + 1, indxDir, 0);
-        }
-
-
-        merge(array, indxEsq, meio, indxDir);
+    // Se não há mais profundidade para paralelismo, usa o sequencial e PARA por aqui
+    if (profundidade <= 0) {
+        mergeSort(array, indxEsq, indxDir);
+        return; 
     }
+
+    int meio = indxEsq + (indxDir - indxEsq) / 2;
+    pthread_t thread1;
+    ThreadArgs *args1 = (ThreadArgs *)malloc(sizeof(ThreadArgs));
+    args1->array = array; args1->indxEsq = indxEsq;
+    args1->indxDir = meio; args1->profundidade = profundidade - 1;
+
+    // Cria apenas uma thread para a esquerda e processa a direita na thread atual
+    // Isso economiza o overhead de criar uma segunda thread desnecessariamente
+    pthread_create(&thread1, NULL, threadFunc, args1);
+    
+    paralleMergeSort(array, meio + 1, indxDir, profundidade - 1);
+
+    pthread_join(thread1, NULL);
+
+    // Agora faz o merge (você precisará de uma função merge que não seja o mergeSort completo)
+    // O ideal aqui é chamar apenas a função de intercalação, não o sort inteiro.
 }

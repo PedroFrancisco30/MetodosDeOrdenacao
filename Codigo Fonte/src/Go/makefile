@@ -1,5 +1,5 @@
 # Compilador e flags
-GO = go
+GO = /usr/local/go/bin/go
 BINARY = app
 SRC_DIR = .
 

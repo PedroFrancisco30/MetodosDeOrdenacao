@@ -12,7 +12,7 @@ void mergeSort(int *array, int inicio, int fim);
 void paralleMergeSort(int *array, int indxEsq, int indxDir, int profundidade);
 void merge(int *array, int indxEsq, int meio, int indxDir);
 
-#define LIMITE_PARALELO 1
+#define LIMITE_PARALELO 2
 
 // Função para pegar o tempo em milissegundos
 long long currentTimeMillis() {
