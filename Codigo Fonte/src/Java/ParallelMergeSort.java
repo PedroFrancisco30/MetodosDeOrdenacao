@@ -5,11 +5,6 @@ public class ParallelMergeSort {
 
     final int LIMITE_PARALELO = 2;
 
-    // mem[0] acumula bytes alocados pelos buffers temporários do algoritmo.
-    // Usar long[] (array de 1 elemento) permite que threads lambda compartilhem
-    // o mesmo contador sem precisar de AtomicLong — funciona porque cada
-    // sub-árvore escreve em regiões distintas do array original (sem corrida).
-    // Para o paralelo, usamos AtomicLong para segurança entre threads.
     void paralleMergeSort(List<Integer> array, int indxEsq, int indxDir,
                           int profundidade, java.util.concurrent.atomic.AtomicLong mem) {
         if (indxEsq < indxDir) {
